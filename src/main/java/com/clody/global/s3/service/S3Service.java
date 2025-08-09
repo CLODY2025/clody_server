@@ -1,4 +1,4 @@
-package kr.co.fitpass.fitpassbackendv2.infrastructure.aws.s3.service;
+package com.clody.global.s3.service;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
