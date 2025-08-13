@@ -2,6 +2,7 @@ package com.clody.domain.ootd.entity;
 
 import com.clody.domain.comment.entity.Comment;
 import com.clody.domain.member.entity.Member;
+import com.clody.domain.ootdHashtag.entity.OotdHashtag;
 import com.clody.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,12 +36,15 @@ public class Ootd extends BaseTimeEntity {
     @Column(name = "weather_description")
     private String weatherDescription;
 
-    @Column(name = "is_public")
-    private boolean isPublic;
+    @OneToOne(mappedBy = "ootd", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private OotdImage image;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "ootd", cascade = CascadeType.ALL)
-    private List<OotdImage> images = new ArrayList<>();
+    public void setImage(OotdImage image) {
+        this.image = image;
+        if (image != null && image.getOotd() != this) {
+            image.setOotd(this);
+        }
+    }
 
     @Builder.Default
     @OneToMany(mappedBy = "ootd", cascade = CascadeType.ALL)
@@ -49,4 +53,8 @@ public class Ootd extends BaseTimeEntity {
     @Builder.Default
     @OneToMany(mappedBy = "ootd", cascade = CascadeType.ALL)
     private List<OotdLike> likes = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "ootd", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OotdHashtag> ootdHashtags = new ArrayList<>();
 }
