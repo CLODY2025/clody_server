@@ -33,8 +33,15 @@ public class Ootd extends BaseTimeEntity {
     @Column(name = "max_temperature")
     private int maxTemperature;
 
+    @Column(name = "is_rain")
+    private boolean isRain;
+
+    @Column(name = "humidity")
+    private int humidity;
+
     @Column(name = "weather_description")
     private String weatherDescription;
+
 
     @OneToOne(mappedBy = "ootd", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private OotdImage image;
