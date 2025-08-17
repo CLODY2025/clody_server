@@ -22,8 +22,9 @@ public class Hashtag extends BaseTimeEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "category", nullable = false, unique = true)
-    private String category;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", columnDefinition = "VARCHAR(20)")
+    private HashtagCategory category;
 
     @Column(name = "image_key", nullable = false)
     private String imageKey;
