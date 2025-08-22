@@ -2,6 +2,7 @@ package com.clody.domain.member.service;
 
 import com.clody.domain.member.dto.MemberRequestDTO;
 import com.clody.domain.member.dto.MemberResponseDTO;
+import com.clody.domain.member.entity.AccountScope;
 import com.clody.domain.member.entity.Member;
 import com.clody.domain.member.entity.MemberToken;
 import com.clody.domain.member.exception.MemberErrorCode;

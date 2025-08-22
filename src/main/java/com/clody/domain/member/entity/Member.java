@@ -41,7 +41,7 @@ public class Member extends BaseSoftDeleteEntity {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_scope", nullable = false)
+    @Column(name = "account_scope")
     private AccountScope accountScope = AccountScope.PUBLIC;
 
     @Builder.Default

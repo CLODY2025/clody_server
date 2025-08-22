@@ -2,15 +2,15 @@ package com.clody.domain.member.controller;
 
 import com.clody.domain.member.dto.MemberRequestDTO;
 import com.clody.domain.member.dto.MemberResponseDTO;
+import com.clody.domain.member.entity.Member;
 import com.clody.domain.member.service.MemberCommandService;
 import com.clody.domain.member.service.MemberQueryService;
 import com.clody.global.apiPayload.ApiResponse;
+import com.clody.global.auth.CurrentUser;
 import com.clody.global.email.EmailService;
-import com.clody.global.jwt.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,6 @@ public class MemberController {
     private final MemberCommandService memberCommandService;
     private final MemberQueryService memberQueryService;
     private final EmailService emailService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping("/email/send")
     @Operation(summary = "이메일 인증번호 발송", description = "회원가입을 위한 이메일 인증번호를 발송합니다.")
@@ -104,19 +103,11 @@ public class MemberController {
         description = "JWT 토큰을 통해 현재 로그인한 회원의 프로필 정보를 조회합니다.",
         security = @SecurityRequirement(name = "Bearer Authentication")
     )
-    public ApiResponse<MemberResponseDTO.MemberProfile> getCurrentMemberProfile(HttpServletRequest request) {
+    public ApiResponse<MemberResponseDTO.MemberProfile> getCurrentMemberProfile(@CurrentUser Member member) {
         
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("JWT 토큰이 필요합니다");
-        }
+        log.info("로그인한 회원 프로필 조회 요청 - memberId: {}", member.getId());
         
-        String token = authHeader.substring(7);
-        Long memberId = jwtUtil.getMemberIdFromToken(token);
-        
-        log.info("로그인한 회원 프로필 조회 요청 - memberId: {}", memberId);
-        
-        MemberResponseDTO.MemberProfile response = memberQueryService.getCurrentMemberProfile(memberId);
+        MemberResponseDTO.MemberProfile response = memberQueryService.getCurrentMemberProfile(member.getId());
         return ApiResponse.onSuccess(response);
     }
 }
