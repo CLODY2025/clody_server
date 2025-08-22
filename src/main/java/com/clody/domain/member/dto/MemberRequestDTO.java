@@ -122,4 +122,15 @@ public class MemberRequestDTO {
         @Pattern(regexp = "^[0-9]{6}$", message = "인증번호는 6자리 숫자여야 합니다")
         private String verificationCode;
     }
+
+    @Getter
+    @NoArgsConstructor
+    @Schema(description = "닉네임 변경 요청")
+    public static class UpdateNickname {
+        @Schema(description = "새 닉네임", example = "newNickname123")
+        @NotBlank(message = "닉네임은 필수입니다")
+        @Size(min = 2, max = 20, message = "닉네임은 2-20자 이내여야 합니다")
+        @Pattern(regexp = "^[가-힣a-zA-Z0-9_-]*$", message = "닉네임은 한글, 영문, 숫자, '_', '-'만 사용 가능합니다")
+        private String nickname;
+    }
 }

@@ -243,4 +243,24 @@ public class MemberResponseDTO {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime uploadedAt;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "닉네임 변경 응답")
+    public static class UpdateNickname {
+        @Schema(description = "회원 ID", example = "1")
+        private Long memberId;
+
+        @Schema(description = "변경된 닉네임", example = "newNickname123")
+        private String nickname;
+
+        @Schema(description = "메시지", example = "닉네임이 성공적으로 변경되었습니다")
+        private String message;
+
+        @Schema(description = "변경 시간", example = "2024-01-01T10:30:00")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime changedAt;
+    }
 }

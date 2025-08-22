@@ -201,4 +201,20 @@ public class MemberController {
         MemberResponseDTO.UploadProfileImage response = memberCommandService.uploadProfileImage(member, imageFile);
         return ApiResponse.onSuccess(response);
     }
+
+    @PatchMapping("/nickname")
+    @Operation(
+        summary = "닉네임 변경", 
+        description = "로그인한 회원의 닉네임을 변경합니다. 닉네임 중복 검사를 포함합니다.",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    public ApiResponse<MemberResponseDTO.UpdateNickname> updateNickname(
+            @CurrentUser Member member,
+            @Valid @RequestBody MemberRequestDTO.UpdateNickname request) {
+        
+        log.info("닉네임 변경 요청 - memberId: {}, 새 닉네임: {}", member.getId(), request.getNickname());
+        
+        MemberResponseDTO.UpdateNickname response = memberCommandService.updateNickname(member, request);
+        return ApiResponse.onSuccess(response);
+    }
 }

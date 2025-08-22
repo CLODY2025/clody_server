@@ -313,4 +313,39 @@ public class MemberCommandService {
             return null;
         }
     }
+
+    public MemberResponseDTO.UpdateNickname updateNickname(Member member, MemberRequestDTO.UpdateNickname request) {
+        String newNickname = request.getNickname();
+        
+        log.info("닉네임 변경 시도 - memberId: {}, 현재: {}, 변경: {}", 
+                member.getId(), member.getNickname(), newNickname);
+        
+        // 현재와 동일한 닉네임인지 확인
+        if (member.getNickname().equals(newNickname)) {
+            log.info("동일한 닉네임으로 변경 시도 - memberId: {}, nickname: {}", 
+                    member.getId(), newNickname);
+            throw new MemberException(MemberErrorCode.SAME_NICKNAME);
+        }
+        
+        // 닉네임 중복 확인
+        if (memberRepository.existsByNickname(newNickname)) {
+            log.warn("이미 사용중인 닉네임으로 변경 시도 - memberId: {}, nickname: {}", 
+                    member.getId(), newNickname);
+            throw new MemberException(MemberErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
+        
+        // 닉네임 업데이트
+        member.updateNickname(newNickname);
+        Member savedMember = memberRepository.save(member);
+        
+        log.info("닉네임 변경 완료 - memberId: {}, nickname: {}", 
+                savedMember.getId(), savedMember.getNickname());
+        
+        return MemberResponseDTO.UpdateNickname.builder()
+                .memberId(savedMember.getId())
+                .nickname(savedMember.getNickname())
+                .message("닉네임이 성공적으로 변경되었습니다")
+                .changedAt(LocalDateTime.now())
+                .build();
+    }
 }
