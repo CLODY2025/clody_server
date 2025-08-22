@@ -86,4 +86,8 @@ public class Member extends BaseSoftDeleteEntity {
     public void updateAccountScope(AccountScope accountScope) {
         this.accountScope = accountScope;
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }

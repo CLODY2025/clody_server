@@ -81,4 +81,45 @@ public class MemberRequestDTO {
         @NotNull(message = "계정 범위는 필수입니다")
         private AccountScope accountScope;
     }
+
+    @Getter
+    @NoArgsConstructor
+    @Schema(description = "비밀번호 변경용 이메일 인증번호 발송 요청")
+    public static class SendPasswordResetVerification {
+        @Schema(description = "이메일", example = "user@example.com")
+        @Email(message = "올바른 이메일 형식이어야 합니다")
+        @NotBlank(message = "이메일은 필수입니다")
+        private String email;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @Schema(description = "비밀번호 변경용 이메일 인증번호 검증 요청")
+    public static class VerifyPasswordResetCode {
+        @Schema(description = "이메일", example = "user@example.com")
+        @Email(message = "올바른 이메일 형식이어야 합니다")
+        @NotBlank(message = "이메일은 필수입니다")
+        private String email;
+
+        @Schema(description = "인증번호", example = "123456")
+        @NotBlank(message = "인증번호는 필수입니다")
+        @Pattern(regexp = "^[0-9]{6}$", message = "인증번호는 6자리 숫자여야 합니다")
+        private String verificationCode;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @Schema(description = "비밀번호 변경 요청")
+    public static class ChangePassword {
+        @Schema(description = "새 비밀번호", example = "NewPassword123!")
+        @NotBlank(message = "새 비밀번호는 필수입니다")
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$", 
+                message = "비밀번호는 8-20자이며, 대소문자, 숫자, 특수문자를 포함해야 합니다")
+        private String newPassword;
+
+        @Schema(description = "인증번호", example = "123456")
+        @NotBlank(message = "인증번호는 필수입니다")
+        @Pattern(regexp = "^[0-9]{6}$", message = "인증번호는 6자리 숫자여야 합니다")
+        private String verificationCode;
+    }
 }

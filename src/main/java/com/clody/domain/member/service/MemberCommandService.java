@@ -163,4 +163,86 @@ public class MemberCommandService {
             case FOLLOWERS_ONLY -> "계정이 팔로워만 보기로 설정되었습니다";
         };
     }
+
+    public MemberResponseDTO.SendPasswordResetVerification sendPasswordResetVerification(MemberRequestDTO.SendPasswordResetVerification request) {
+        String email = request.getEmail();
+        
+        // 가입된 이메일인지 확인
+        if (!memberRepository.existsByEmail(email)) {
+            log.warn("존재하지 않는 이메일로 비밀번호 변경 요청 - email: {}", email);
+            throw new MemberException(MemberErrorCode.NOT_FOUND);
+        }
+        
+        // 인증번호 생성 및 저장 (비밀번호 변경용)
+        String verificationCode = emailVerificationService.generateAndSavePasswordResetCode(email);
+        
+        log.info("비밀번호 변경용 인증번호 발송 완료 - email: {}", email);
+        
+        return MemberResponseDTO.SendPasswordResetVerification.builder()
+                .message("비밀번호 변경용 인증번호가 이메일로 발송되었습니다")
+                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .build();
+    }
+
+    public MemberResponseDTO.VerifyPasswordResetCode verifyPasswordResetCode(MemberRequestDTO.VerifyPasswordResetCode request) {
+        String email = request.getEmail();
+        String verificationCode = request.getVerificationCode();
+        
+        // 가입된 이메일인지 확인
+        if (!memberRepository.existsByEmail(email)) {
+            log.warn("존재하지 않는 이메일로 비밀번호 변경 인증 시도 - email: {}", email);
+            throw new MemberException(MemberErrorCode.NOT_FOUND);
+        }
+        
+        // 인증번호 검증 (비밀번호 변경용)
+        boolean verified = emailVerificationService.verifyPasswordResetCode(email, verificationCode);
+        
+        if (!verified) {
+            log.warn("비밀번호 변경용 인증번호 검증 실패 - email: {}", email);
+            throw new MemberException(MemberErrorCode.EMAIL_VERIFICATION_FAILED);
+        }
+        
+        log.info("비밀번호 변경용 인증번호 검증 완료 - email: {}", email);
+        
+        return MemberResponseDTO.VerifyPasswordResetCode.builder()
+                .message("인증번호 확인이 완료되었습니다")
+                .verified(true)
+                .build();
+    }
+
+    public MemberResponseDTO.ChangePassword changePassword(Member member, MemberRequestDTO.ChangePassword request) {
+        String newPassword = request.getNewPassword();
+        String verificationCode = request.getVerificationCode();
+        String email = member.getEmail();
+        
+        log.info("비밀번호 변경 시도 - memberId: {}, email: {}", member.getId(), email);
+        
+        // 인증번호 최종 확인
+        if (!emailVerificationService.isPasswordResetVerified(email)) {
+            log.warn("인증번호 검증이 완료되지 않은 비밀번호 변경 시도 - email: {}", email);
+            throw new MemberException(MemberErrorCode.EMAIL_NOT_VERIFIED);
+        }
+        
+        // 현재 비밀번호와 동일한지 확인
+        if (passwordEncoder.matches(newPassword, member.getPassword())) {
+            log.warn("현재 비밀번호와 동일한 비밀번호로 변경 시도 - memberId: {}", member.getId());
+            throw new MemberException(MemberErrorCode.SAME_PASSWORD);
+        }
+        
+        // 비밀번호 변경
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        member.updatePassword(encodedNewPassword);
+        Member savedMember = memberRepository.save(member);
+        
+        // 비밀번호 변경용 인증 플래그 삭제
+        emailVerificationService.removePasswordResetVerifiedFlag(email);
+        
+        log.info("비밀번호 변경 완료 - memberId: {}", savedMember.getId());
+        
+        return MemberResponseDTO.ChangePassword.builder()
+                .memberId(savedMember.getId())
+                .message("비밀번호가 성공적으로 변경되었습니다")
+                .changedAt(LocalDateTime.now())
+                .build();
+    }
 }

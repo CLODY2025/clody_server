@@ -30,6 +30,8 @@ public class SecurityConfig {
             "/api/members/signup/**",
             "/api/members/email/**",
             "/api/members/nickname/check",
+            "/api/members/password/send-verification",
+            "/api/members/password/verify",
             "/api/auth/login",
             "/api/auth/refresh"
     };

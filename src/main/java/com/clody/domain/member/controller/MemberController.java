@@ -126,4 +126,48 @@ public class MemberController {
         MemberResponseDTO.UpdateAccountScope response = memberCommandService.updateAccountScope(member, request);
         return ApiResponse.onSuccess(response);
     }
+
+    @PostMapping("/password/send-verification")
+    @Operation(
+        summary = "비밀번호 변경용 이메일 인증번호 발송", 
+        description = "비밀번호 변경을 위한 이메일 인증번호를 발송합니다."
+    )
+    public ApiResponse<MemberResponseDTO.SendPasswordResetVerification> sendPasswordResetVerification(
+            @Valid @RequestBody MemberRequestDTO.SendPasswordResetVerification request) {
+        
+        log.info("비밀번호 변경용 이메일 인증번호 발송 요청 - email: {}", request.getEmail());
+        
+        MemberResponseDTO.SendPasswordResetVerification response = memberCommandService.sendPasswordResetVerification(request);
+        return ApiResponse.onSuccess(response);
+    }
+
+    @PostMapping("/password/verify")
+    @Operation(
+        summary = "비밀번호 변경용 이메일 인증번호 검증", 
+        description = "발송된 비밀번호 변경용 인증번호를 검증합니다."
+    )
+    public ApiResponse<MemberResponseDTO.VerifyPasswordResetCode> verifyPasswordResetCode(
+            @Valid @RequestBody MemberRequestDTO.VerifyPasswordResetCode request) {
+        
+        log.info("비밀번호 변경용 인증번호 검증 요청 - email: {}", request.getEmail());
+        
+        MemberResponseDTO.VerifyPasswordResetCode response = memberCommandService.verifyPasswordResetCode(request);
+        return ApiResponse.onSuccess(response);
+    }
+
+    @PatchMapping("/password")
+    @Operation(
+        summary = "비밀번호 변경", 
+        description = "이메일 인증을 완료한 후 새로운 비밀번호로 변경합니다.",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    public ApiResponse<MemberResponseDTO.ChangePassword> changePassword(
+            @CurrentUser Member member,
+            @Valid @RequestBody MemberRequestDTO.ChangePassword request) {
+        
+        log.info("비밀번호 변경 요청 - memberId: {}", member.getId());
+        
+        MemberResponseDTO.ChangePassword response = memberCommandService.changePassword(member, request);
+        return ApiResponse.onSuccess(response);
+    }
 }

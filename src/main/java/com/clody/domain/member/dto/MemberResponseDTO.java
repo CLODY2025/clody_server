@@ -179,4 +179,48 @@ public class MemberResponseDTO {
         @Schema(description = "변경 완료 메시지", example = "계정이 공개로 설정되었습니다")
         private String message;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "비밀번호 변경용 이메일 인증번호 발송 응답")
+    public static class SendPasswordResetVerification {
+        @Schema(description = "메시지", example = "비밀번호 변경용 인증번호가 이메일로 발송되었습니다")
+        private String message;
+
+        @Schema(description = "만료 시간", example = "2024-01-01T10:30:00")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime expiresAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "비밀번호 변경용 이메일 인증번호 검증 응답")
+    public static class VerifyPasswordResetCode {
+        @Schema(description = "메시지", example = "인증번호 확인이 완료되었습니다")
+        private String message;
+
+        @Schema(description = "인증 상태", example = "true")
+        private Boolean verified;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "비밀번호 변경 응답")
+    public static class ChangePassword {
+        @Schema(description = "회원 ID", example = "1")
+        private Long memberId;
+
+        @Schema(description = "메시지", example = "비밀번호가 성공적으로 변경되었습니다")
+        private String message;
+
+        @Schema(description = "변경 시간", example = "2024-01-01T10:30:00")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime changedAt;
+    }
 }
