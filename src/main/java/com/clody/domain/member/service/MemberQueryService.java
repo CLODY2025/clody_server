@@ -57,4 +57,10 @@ public class MemberQueryService {
         Member member = findById(memberId);
         return MemberResponseDTO.MemberInfo.from(member);
     }
+
+    public MemberResponseDTO.MemberProfile getCurrentMemberProfile(Long memberId) {
+        Member member = findById(memberId);
+        log.info("현재 로그인 회원 프로필 조회 - memberId: {}", memberId);
+        return MemberResponseDTO.MemberProfile.from(member);
+    }
 }

@@ -135,4 +135,74 @@ public class EmailService {
         }
     }
 
+    public void sendPasswordResetEmail(String toEmail, String verificationCode) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+
+            helper.setFrom(emailProperties.getFrom());
+            helper.setTo(toEmail);
+            helper.setSubject("[CLODY] 비밀번호 변경 인증번호");
+
+            String htmlContent = createPasswordResetEmailContent(verificationCode);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            
+            log.info("=== 비밀번호 변경용 이메일 인증번호 발송 완료 ===");
+            log.info("수신자: {}", toEmail);
+            log.info("인증번호: {}", verificationCode);
+            log.info("발송 시간: {}", java.time.LocalDateTime.now());
+            log.info("===============================================");
+
+        } catch (Exception e) {
+            log.error("비밀번호 변경용 이메일 발송 실패 - 수신자: {}, 오류: {}", toEmail, e.getMessage(), e);
+            throw new RuntimeException("비밀번호 변경용 이메일 발송에 실패했습니다", e);
+        }
+    }
+
+    private String createPasswordResetEmailContent(String verificationCode) {
+        return """
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f4; }
+                    .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+                    .header { text-align: center; color: #4a90e2; font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+                    .code { text-align: center; font-size: 32px; font-weight: bold; color: #e74c3c; padding: 20px; background: #f8f9fa; border-radius: 8px; margin: 20px 0; }
+                    .message { color: #333; font-size: 16px; }
+                    .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin: 20px 0; }
+                    .footer { text-align: center; color: #999; font-size: 12px; margin-top: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">🔒 Clody</div>
+                    <div class="message">
+                        <p>안녕하세요!</p>
+                        <p>비밀번호 변경을 위한 인증번호입니다.</p>
+                        <p>아래의 6자리 인증번호를 입력해주세요.</p>
+                    </div>
+                    <div class="code">""" + verificationCode + """
+                    </div>
+                    <div class="warning">
+                        <p><strong>⚠️ 보안 안내:</strong></p>
+                        <ul>
+                            <li>이 인증번호는 5분 후에 만료됩니다</li>
+                            <li>본인이 요청하지 않았다면 무시하세요</li>
+                            <li>이 인증번호는 누구에게도 공유하지 마세요</li>
+                        </ul>
+                    </div>
+                    <div class="footer">
+                        <p>© 2024 Clody. All rights reserved.</p>
+                        <p>이 메일은 발신전용입니다.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """;
+    }
+
 }

@@ -39,6 +39,15 @@ public class Member extends BaseSoftDeleteEntity {
     @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_scope")
+    private AccountScope accountScope = AccountScope.PUBLIC;
+
+    @Builder.Default
+    @Column(name = "is_email_verified", nullable = false)
+    private Boolean isEmailVerified = false;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -73,4 +82,20 @@ public class Member extends BaseSoftDeleteEntity {
     @Builder.Default
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
     private List<Follow> followers = new ArrayList<>();
+
+    public void updateAccountScope(AccountScope accountScope) {
+        this.accountScope = accountScope;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
