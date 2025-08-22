@@ -223,4 +223,24 @@ public class MemberResponseDTO {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime changedAt;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "프로필 이미지 업로드 응답")
+    public static class UploadProfileImage {
+        @Schema(description = "회원 ID", example = "1")
+        private Long memberId;
+
+        @Schema(description = "업로드된 이미지 URL", example = "https://clodybucket.s3.ap-northeast-2.amazonaws.com/profile/uuid/image.jpg")
+        private String profileImageUrl;
+
+        @Schema(description = "메시지", example = "프로필 이미지가 성공적으로 업데이트되었습니다")
+        private String message;
+
+        @Schema(description = "업로드 시간", example = "2024-01-01T10:30:00")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime uploadedAt;
+    }
 }

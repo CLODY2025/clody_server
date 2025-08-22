@@ -90,4 +90,8 @@ public class Member extends BaseSoftDeleteEntity {
     public void updatePassword(String password) {
         this.password = password;
     }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 }

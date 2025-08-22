@@ -10,11 +10,14 @@ import com.clody.domain.member.exception.MemberException;
 import com.clody.domain.member.repository.MemberRepository;
 import com.clody.global.email.EmailVerificationService;
 import com.clody.global.jwt.JwtUtil;
+import com.clody.global.s3.service.S3Service;
+import com.clody.global.util.ImageValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +31,7 @@ public class MemberCommandService {
     private final EmailVerificationService emailVerificationService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final S3Service s3Service;
 
     public MemberResponseDTO.SendEmailVerification sendEmailVerification(MemberRequestDTO.SendEmailVerification request) {
         String email = request.getEmail();
@@ -244,5 +248,69 @@ public class MemberCommandService {
                 .message("비밀번호가 성공적으로 변경되었습니다")
                 .changedAt(LocalDateTime.now())
                 .build();
+    }
+
+    public MemberResponseDTO.UploadProfileImage uploadProfileImage(Member member, MultipartFile imageFile) {
+        // 이미지 파일 검증
+        ImageValidationUtil.validateImageFile(imageFile);
+        
+        log.info("프로필 이미지 업로드 시작 - memberId: {}, 파일명: {}, 크기: {}bytes", 
+                member.getId(), imageFile.getOriginalFilename(), imageFile.getSize());
+
+        try {
+            // 기존 프로필 이미지가 있다면 삭제
+            String existingImageUrl = member.getProfileImageUrl();
+            if (existingImageUrl != null && !existingImageUrl.trim().isEmpty()) {
+                String existingKey = extractS3KeyFromUrl(existingImageUrl);
+                if (existingKey != null) {
+                    try {
+                        s3Service.deleteFile(existingKey);
+                        log.info("기존 프로필 이미지 삭제 완료 - key: {}", existingKey);
+                    } catch (Exception e) {
+                        log.warn("기존 프로필 이미지 삭제 실패 - key: {}, error: {}", existingKey, e.getMessage());
+                    }
+                }
+            }
+
+            // 새 이미지 업로드
+            String imageKey = ImageValidationUtil.generateProfileImageKey(member.getId(), imageFile.getOriginalFilename());
+            String imageUrl = s3Service.uploadFile(imageFile, imageKey);
+            
+            // 회원 정보 업데이트
+            member.updateProfileImageUrl(imageUrl);
+            Member savedMember = memberRepository.save(member);
+            
+            log.info("프로필 이미지 업로드 완료 - memberId: {}, imageUrl: {}", 
+                    savedMember.getId(), imageUrl);
+
+            return MemberResponseDTO.UploadProfileImage.builder()
+                    .memberId(savedMember.getId())
+                    .profileImageUrl(imageUrl)
+                    .message("프로필 이미지가 성공적으로 업데이트되었습니다")
+                    .uploadedAt(LocalDateTime.now())
+                    .build();
+
+        } catch (Exception e) {
+            log.error("프로필 이미지 업로드 실패 - memberId: {}, error: {}", member.getId(), e.getMessage(), e);
+            throw new MemberException(MemberErrorCode.INVALID_IMAGE_FILE);
+        }
+    }
+
+    private String extractS3KeyFromUrl(String s3Url) {
+        if (s3Url == null || s3Url.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // S3 URL에서 키 추출 (예: https://bucket.s3.region.amazonaws.com/key -> key)
+            if (s3Url.contains(".amazonaws.com/")) {
+                int keyStartIndex = s3Url.indexOf(".amazonaws.com/") + ".amazonaws.com/".length();
+                return s3Url.substring(keyStartIndex);
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("S3 URL에서 키 추출 실패 - url: {}, error: {}", s3Url, e.getMessage());
+            return null;
+        }
     }
 }

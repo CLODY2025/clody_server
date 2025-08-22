@@ -9,12 +9,17 @@ import com.clody.global.apiPayload.ApiResponse;
 import com.clody.global.auth.CurrentUser;
 import com.clody.global.email.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 @Slf4j
 @RestController
@@ -168,6 +173,32 @@ public class MemberController {
         log.info("비밀번호 변경 요청 - memberId: {}", member.getId());
         
         MemberResponseDTO.ChangePassword response = memberCommandService.changePassword(member, request);
+        return ApiResponse.onSuccess(response);
+    }
+
+    @PostMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+        summary = "프로필 이미지 업로드",
+        description = "회원의 프로필 이미지를 업로드/변경합니다. 기존 이미지가 있으면 삭제 후 새 이미지로 교체됩니다. " +
+                     "지원 형식: JPG, JPEG, PNG, GIF, WEBP (최대 5MB)",
+        security = @SecurityRequirement(name = "Bearer Authentication"),
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = @Content(
+                mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+            )
+        )
+    )
+    public ApiResponse<MemberResponseDTO.UploadProfileImage> uploadProfileImage(
+            @CurrentUser Member member,
+            @Parameter(description = "업로드할 이미지 파일 (JPG, JPEG, PNG, GIF, WEBP, 최대 5MB)", 
+                      required = true,
+                      content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestParam("image") MultipartFile imageFile) {
+        
+        log.info("프로필 이미지 업로드 요청 - memberId: {}, 파일명: {}", 
+                member.getId(), imageFile.getOriginalFilename());
+        
+        MemberResponseDTO.UploadProfileImage response = memberCommandService.uploadProfileImage(member, imageFile);
         return ApiResponse.onSuccess(response);
     }
 }
