@@ -39,6 +39,15 @@ public class Member extends BaseSoftDeleteEntity {
     @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_scope", nullable = false)
+    private AccountScope accountScope = AccountScope.PUBLIC;
+
+    @Builder.Default
+    @Column(name = "is_email_verified", nullable = false)
+    private Boolean isEmailVerified = false;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 

@@ -1,5 +1,6 @@
 package com.clody.domain.member.dto;
 
+import com.clody.domain.member.entity.AccountScope;
 import com.clody.domain.member.entity.Member;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -121,6 +122,43 @@ public class MemberResponseDTO {
                     .nickname(member.getNickname())
                     .profileImageUrl(member.getProfileImageUrl())
                     .isEmailVerified(member.getIsEmailVerified())
+                    .createdAt(member.getCreatedAt())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "회원 프로필 응답")
+    public static class MemberProfile {
+        @Schema(description = "회원 ID", example = "1")
+        private Long id;
+
+        @Schema(description = "이메일", example = "user@example.com")
+        private String email;
+
+        @Schema(description = "닉네임", example = "nickname123")
+        private String nickname;
+
+        @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
+        private String profileImageUrl;
+
+        @Schema(description = "계정 공개 범위", example = "PUBLIC")
+        private AccountScope accountScope;
+
+        @Schema(description = "가입일", example = "2024-01-01T10:30:00")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime createdAt;
+
+        public static MemberProfile from(Member member) {
+            return MemberProfile.builder()
+                    .id(member.getId())
+                    .email(member.getEmail())
+                    .nickname(member.getNickname())
+                    .profileImageUrl(member.getProfileImageUrl())
+                    .accountScope(member.getAccountScope())
                     .createdAt(member.getCreatedAt())
                     .build();
         }
