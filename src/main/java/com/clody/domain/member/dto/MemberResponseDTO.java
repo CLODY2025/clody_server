@@ -163,4 +163,20 @@ public class MemberResponseDTO {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "계정 범위 변경 응답")
+    public static class UpdateAccountScope {
+        @Schema(description = "회원 ID", example = "1")
+        private Long memberId;
+
+        @Schema(description = "변경된 계정 공개 범위", example = "PUBLIC")
+        private AccountScope accountScope;
+
+        @Schema(description = "변경 완료 메시지", example = "계정이 공개로 설정되었습니다")
+        private String message;
+    }
 }

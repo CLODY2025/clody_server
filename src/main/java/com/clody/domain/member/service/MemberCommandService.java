@@ -129,4 +129,38 @@ public class MemberCommandService {
         
         return MemberResponseDTO.SignUp.from(savedMember, accessToken, refreshToken, tokenExpiresAt);
     }
+
+    public MemberResponseDTO.UpdateAccountScope updateAccountScope(Member member, MemberRequestDTO.UpdateAccountScope request) {
+        AccountScope newAccountScope = request.getAccountScope();
+        
+        log.info("계정 범위 변경 시도 - memberId: {}, 현재: {}, 변경: {}", 
+                member.getId(), member.getAccountScope(), newAccountScope);
+        
+        // 현재와 동일한 설정인지 확인
+        if (member.getAccountScope() == newAccountScope) {
+            log.info("동일한 계정 범위로 변경 시도 - memberId: {}, accountScope: {}", 
+                    member.getId(), newAccountScope);
+            throw new MemberException(MemberErrorCode.SAME_ACCOUNT_SCOPE);
+        }
+        
+        // 계정 범위 업데이트
+        member.updateAccountScope(newAccountScope);
+        Member savedMember = memberRepository.save(member);
+        
+        log.info("계정 범위 변경 완료 - memberId: {}, accountScope: {}", 
+                savedMember.getId(), savedMember.getAccountScope());
+        
+        return MemberResponseDTO.UpdateAccountScope.builder()
+                .memberId(savedMember.getId())
+                .accountScope(savedMember.getAccountScope())
+                .message(getAccountScopeMessage(newAccountScope))
+                .build();
+    }
+    
+    private String getAccountScopeMessage(AccountScope accountScope) {
+        return switch (accountScope) {
+            case PUBLIC -> "계정이 공개로 설정되었습니다";
+            case FOLLOWERS_ONLY -> "계정이 팔로워만 보기로 설정되었습니다";
+        };
+    }
 }

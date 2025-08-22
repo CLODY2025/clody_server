@@ -1,8 +1,10 @@
 package com.clody.domain.member.dto;
 
+import com.clody.domain.member.entity.AccountScope;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -69,5 +71,14 @@ public class MemberRequestDTO {
         @NotBlank(message = "인증번호는 필수입니다")
         @Pattern(regexp = "^[0-9]{6}$", message = "인증번호는 6자리 숫자여야 합니다")
         private String verificationCode;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @Schema(description = "계정 범위 설정 요청")
+    public static class UpdateAccountScope {
+        @Schema(description = "계정 공개 범위", example = "PUBLIC", allowableValues = {"PUBLIC", "FOLLOWERS_ONLY"})
+        @NotNull(message = "계정 범위는 필수입니다")
+        private AccountScope accountScope;
     }
 }

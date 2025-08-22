@@ -110,4 +110,20 @@ public class MemberController {
         MemberResponseDTO.MemberProfile response = memberQueryService.getCurrentMemberProfile(member.getId());
         return ApiResponse.onSuccess(response);
     }
+
+    @PatchMapping("/account-scope")
+    @Operation(
+        summary = "계정 범위 설정", 
+        description = "로그인한 회원의 계정 범위(PUBLIC/FOLLOWERS_ONLY)를 변경합니다.",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    public ApiResponse<MemberResponseDTO.UpdateAccountScope> updateAccountScope(
+            @CurrentUser Member member,
+            @Valid @RequestBody MemberRequestDTO.UpdateAccountScope request) {
+        
+        log.info("계정 범위 변경 요청 - memberId: {}, accountScope: {}", member.getId(), request.getAccountScope());
+        
+        MemberResponseDTO.UpdateAccountScope response = memberCommandService.updateAccountScope(member, request);
+        return ApiResponse.onSuccess(response);
+    }
 }

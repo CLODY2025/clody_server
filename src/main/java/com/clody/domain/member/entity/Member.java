@@ -82,4 +82,8 @@ public class Member extends BaseSoftDeleteEntity {
     @Builder.Default
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
     private List<Follow> followers = new ArrayList<>();
+
+    public void updateAccountScope(AccountScope accountScope) {
+        this.accountScope = accountScope;
+    }
 }
