@@ -1,6 +1,4 @@
 package com.clody.domain.comment.entity;
-
-
 import com.clody.domain.member.entity.Member;
 import com.clody.global.entity.BaseOnlyCreateEntity;
 import jakarta.persistence.*;

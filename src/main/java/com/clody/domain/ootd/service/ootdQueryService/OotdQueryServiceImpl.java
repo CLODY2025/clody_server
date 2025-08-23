@@ -1,6 +1,7 @@
 package com.clody.domain.ootd.service.ootdQueryService;
 
 
+import com.clody.domain.comment.service.commentQueryService.CommentQueryService;
 import com.clody.domain.hashtag.entity.HashtagCategory;
 import com.clody.domain.hashtag.exception.HashtagErrorCode;
 import com.clody.domain.hashtag.exception.HashtagException;
@@ -35,6 +36,7 @@ public class OotdQueryServiceImpl implements OotdQueryService {
     private final HashtagQueryService hashtagQueryService;
     private final MemberRepository memberRepository;
     private final S3Service s3Service;
+    private final CommentQueryService commentQueryService;
 
 
     /* ootd 둘러보기(전체 공개) */
@@ -187,10 +189,12 @@ public class OotdQueryServiceImpl implements OotdQueryService {
                 .toList();
         String key=ootdImageRepository.findKeyByOotdId(ootdId).orElseThrow(() -> new OotdException(OotdErrorCode.NOT_FOUND));
         String presingedUrl=s3Service.getGetGeneratePresignedUrlRequest(key);
+        Long commentCount=commentQueryService.countByOotd(ootdId);
         return OotdResponseDTO.getOotdDTO.builder()
                 .id(ootd.getId())
                 .nickname(ootd.getMember().getNickname())
                 .hashtags(hashtagNames)
+                .commentCount(commentCount)
                 .createdAt(ootd.getCreatedAt())
                 .image(presingedUrl)
                 .build();
