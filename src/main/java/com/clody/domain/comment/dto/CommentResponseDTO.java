@@ -15,10 +15,17 @@ public class CommentResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "식별자 응답(생성 결과)")
-    public static class IdResponseDTO {
-        @Schema(description = "리소스 ID", example = "456")
+    @Schema(description = "생성 결과")
+    public static class CreateResponseDTO {
+        @Schema(description = "생성된 댓글 ID", example = "456")
         private Long id;
+
+        @Schema(description = "생성된 댓글 ID의 부모 ID", example = "456")
+        private Long parentId;
+
+        @Schema(description = "생성된 댓글 내용", example = "댓글댓글")
+        private String content;
+
     }
 
     @Getter

@@ -31,7 +31,7 @@ public class CommentCommandServiceImpl implements CommentCommandService {
 
     @Transactional
     @Override
-    public CommentResponseDTO.IdResponseDTO add(Long ootdId, Long memberId, CommentRequestDTO.CreateCommentDTO req) {
+    public CommentResponseDTO.CreateResponseDTO add(Long ootdId, Long memberId, CommentRequestDTO.CreateCommentDTO req) {
         Ootd ootd = ootdRepository.findById(ootdId)
                 .orElseThrow(() -> new OotdException(OotdErrorCode.NOT_FOUND));
         Member member = memberRepository.findById(memberId)
@@ -55,13 +55,16 @@ public class CommentCommandServiceImpl implements CommentCommandService {
 
         //클로저 링크 추가
         if (parent == null) {
-            closureRepository.insertSelfLink(saved.getId());              // (self,self,0)
+            closureRepository.insertSelfLink(saved.getId());
         } else {
             closureRepository.insertAncestorLinksFromParent(parent.getId(), saved.getId()); // (A,new,depth+1)
-            closureRepository.insertSelfLink(saved.getId());              // (new,new,0)
+            closureRepository.insertSelfLink(saved.getId());
         }
 
-        return new CommentResponseDTO.IdResponseDTO(saved.getId());
+        return new CommentResponseDTO.CreateResponseDTO(
+                saved.getId(),
+                parent != null ? parent.getId() : null,
+                saved.getContent());
     }
 
     @Transactional
