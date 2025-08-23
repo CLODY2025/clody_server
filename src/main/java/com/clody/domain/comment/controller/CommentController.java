@@ -22,7 +22,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 생성", description = "루트/대댓글 생성 API")
     @PostMapping
-    public ResponseEntity<CommentResponseDTO.IdResponseDTO> create(
+    public ResponseEntity<CommentResponseDTO.CreateResponseDTO> create(
             @PathVariable Long ootdId,
             @RequestParam Long memberId,
             @Valid @RequestBody CommentRequestDTO.CreateCommentDTO req
