@@ -10,7 +10,17 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "ootd_like")
+@Table(
+        name = "ootd_like",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_ootd_like_ootd_member",
+                columnNames = {"ootd_id", "member_id"}
+        ),
+        indexes = {
+                @Index(name = "idx_like_ootd", columnList = "ootd_id"),
+                @Index(name = "idx_like_member", columnList = "member_id")
+        }
+)
 public class OotdLike extends BaseOnlyCreateEntity {
 
     @Id
