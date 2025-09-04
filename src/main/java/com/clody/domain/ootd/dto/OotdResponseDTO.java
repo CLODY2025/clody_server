@@ -16,6 +16,7 @@ public class OotdResponseDTO {
         private String nickname;
         private String image;
         private List<String> hashtags;
+        private Long commentCount;
         private LocalDateTime createdAt;
     }
 
