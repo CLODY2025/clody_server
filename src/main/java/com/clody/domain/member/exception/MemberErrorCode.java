@@ -27,7 +27,9 @@ public enum MemberErrorCode implements BaseErrorCode {
     EMAIL_VERIFICATION_CODE_INVALID(HttpStatus.BAD_REQUEST, "EMAIL4001", "인증번호가 올바르지 않습니다."),
     EMAIL_VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL4002", "인증번호가 만료되었습니다."),
     EMAIL_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "EMAIL4003", "이메일 인증에 실패했습니다."),
-    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL5001", "이메일 발송에 실패했습니다.");
+    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL5001", "이메일 발송에 실패했습니다."),
+
+    JWT_INVALID_TOKEN(HttpStatus.BAD_REQUEST,"JWT4004","유효하지 않은 토큰입니다.");
 
     private final HttpStatus status;
     private final String code;
