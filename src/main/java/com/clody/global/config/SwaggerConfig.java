@@ -16,14 +16,15 @@ public class SwaggerConfig {
     public OpenAPI swagger() {
         Info info = new Info().title("Clody").description("Clody API 명세서").version("0.0.1");
 
-        String securityScheme = "JWT TOKEN";
-        SecurityRequirement requirement = new SecurityRequirement().addList(securityScheme);
+        String securitySchemeName = "Bearer Authentication";
+        SecurityRequirement requirement = new SecurityRequirement().addList(securitySchemeName);
 
-        Components components = new Components().addSecuritySchemes(securityScheme, new SecurityScheme()
-                .name(securityScheme)
+        Components components = new Components().addSecuritySchemes(securitySchemeName, new SecurityScheme()
+                .name(securitySchemeName)
                 .type(SecurityScheme.Type.HTTP)
-                .scheme("Bearer")
-                .bearerFormat("JWT"));
+                .scheme("bearer")
+                .bearerFormat("JWT")
+                .in(SecurityScheme.In.HEADER));
 
         return new OpenAPI().info(info)
                 .addServersItem(new Server().url("/"))
