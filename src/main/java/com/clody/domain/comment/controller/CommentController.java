@@ -4,6 +4,8 @@ import com.clody.domain.comment.dto.CommentRequestDTO;
 import com.clody.domain.comment.dto.CommentResponseDTO;
 import com.clody.domain.comment.service.commentCommandService.CommentCommandService;
 import com.clody.domain.comment.service.commentQueryService.CommentQueryService;
+import com.clody.domain.member.entity.Member;
+import com.clody.global.auth.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +26,10 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<CommentResponseDTO.CreateResponseDTO> create(
             @PathVariable Long ootdId,
-            @RequestParam Long memberId,
+            @CurrentUser Member memeber,
             @Valid @RequestBody CommentRequestDTO.CreateCommentDTO req
     ) {
-        return ResponseEntity.ok(commentCommandService.add(ootdId, memberId, req));
+        return ResponseEntity.ok(commentCommandService.add(ootdId, memeber.getId(), req));
     }
 
     @Operation(summary = "특정 ootd의 전체 댓글 조회", description = "특정 ootd의 전체 댓글 조회")
@@ -43,9 +45,9 @@ public class CommentController {
     public ResponseEntity<Void> delete(
             @PathVariable Long ootdId,
             @PathVariable Long commentId,
-            @RequestParam Long memberId
+            @CurrentUser Member member
     ) {
-        commentCommandService.deleteCascade(commentId, memberId);
+        commentCommandService.deleteCascade(commentId, member.getId());
         return ResponseEntity.noContent().build();
     }
 }
