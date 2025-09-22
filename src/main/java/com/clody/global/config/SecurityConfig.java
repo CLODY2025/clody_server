@@ -26,7 +26,6 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/v3/api-docs/**",
-            "/ootd/**",
             "/api/members/signup/**",
             "/api/members/email/**",
             "/api/members/nickname/check",
