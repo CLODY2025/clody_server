@@ -1,5 +1,7 @@
 package com.clody.global.jwt;
 
+import com.clody.domain.member.exception.MemberErrorCode;
+import com.clody.domain.member.exception.MemberException;
 import com.clody.global.apiPayload.code.base.FailureCode;
 import com.clody.global.apiPayload.exception.GeneralException;
 import io.jsonwebtoken.*;
@@ -84,7 +86,21 @@ public class JwtUtil {
 
     public Long getMemberIdFromToken(String token) {
         Claims claims = parseToken(token);
-        return claims.get("memberId", Long.class);
+        Object raw = claims.get("memberId");
+
+        if (raw == null) {
+            throw new MemberException(MemberErrorCode.JWT_INVALID_TOKEN);
+        }
+        if (raw instanceof Number n) {
+            return n.longValue();
+        }
+        if (raw instanceof String s) {
+            if (s.chars().allMatch(Character::isDigit)) {
+                return Long.parseLong(s);
+            }
+        }
+        log.warn("Unexpected memberId claim type: {}", raw.getClass());
+        throw new MemberException(MemberErrorCode.JWT_INVALID_TOKEN);
     }
 
     public String getTokenType(String token) {
