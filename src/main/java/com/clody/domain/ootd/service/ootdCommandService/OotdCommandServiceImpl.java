@@ -33,8 +33,8 @@ public class OotdCommandServiceImpl implements OotdCommandService {
     private final MemberRepository memberRepository;
 
     @Override
-    public OotdResponseDTO.getOotdDTO createOotd(OotdRequestDTO.CreateOotdDTO request) {
-        Member member = memberRepository.findById(1L).orElseThrow(() -> new OotdException(OotdErrorCode.MEMBER_NOT_FOUND));
+    public OotdResponseDTO.getOotdDTO createOotd(OotdRequestDTO.CreateOotdDTO request,Member member) {
+        Member currentMember = memberRepository.findById(member.getId()).orElseThrow(() -> new OotdException(OotdErrorCode.MEMBER_NOT_FOUND));
 
         List<String> rawTags = Optional.ofNullable(request.getHashtags()).orElseGet(List::of);
         if (rawTags.size() > 6) {
@@ -44,7 +44,7 @@ public class OotdCommandServiceImpl implements OotdCommandService {
         List<Hashtag> hashtags = hashtagQueryService.findAllByCategoriesOrThrow(new HashSet<>(categories));
 
         Ootd ootd = Ootd.builder()
-                .member(member)
+                .member(currentMember)
                 .minTemperature(request.getMinTemperature())
                 .maxTemperature(request.getMaxTemperature())
                 .weatherDescription(request.getWeatherDescription())

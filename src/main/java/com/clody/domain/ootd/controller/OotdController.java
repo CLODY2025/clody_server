@@ -6,6 +6,7 @@ import com.clody.domain.ootd.dto.OotdResponseDTO;
 import com.clody.domain.ootd.service.ootdCommandService.OotdCommandService;
 import com.clody.domain.ootd.service.ootdQueryService.OotdQueryService;
 import com.clody.global.apiPayload.ApiResponse;
+import com.clody.global.auth.CurrentUser;
 import com.clody.global.s3.dto.S3UrlResponseDTO;
 import com.clody.global.s3.service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,8 +40,8 @@ public class OotdController {
     @PostMapping("/create")
     @Operation(summary = "ootd 생성 API", description = "ootd를 생성하는 API입니다.")
     public ResponseEntity<ApiResponse<OotdResponseDTO.getOotdDTO>> createOotd(
-            @Valid @RequestBody OotdRequestDTO.CreateOotdDTO request){
-        OotdResponseDTO.getOotdDTO result=ootdCommandService.createOotd(request);
+            @Valid @RequestBody OotdRequestDTO.CreateOotdDTO request, @CurrentUser Member member){
+        OotdResponseDTO.getOotdDTO result=ootdCommandService.createOotd(request, member);
         return ResponseEntity.ok(ApiResponse.onSuccess(result));
     }
 
@@ -63,10 +64,11 @@ public class OotdController {
     }
 
     @GetMapping("/month")
-    @Operation(summary = "월별 ootd 조회 API", description = "월별 ootd 리스트를 조회하는 API입니다.")
+    @Operation(summary = "개인 월별 ootd 조회 API", description = "개인 월별 ootd 리스트를 조회하는 API입니다.")
     public ResponseEntity<ApiResponse<OotdResponseDTO.getMonthlyOotdListDTO>> getMonthlyOotd(@RequestParam int year,
-                                                                                  @RequestParam int month){
-        OotdResponseDTO.getMonthlyOotdListDTO result=ootdQueryService.getMonthlyOotds(year,month);
+                                                                                             @RequestParam int month,
+                                                                                             @CurrentUser Member member){
+        OotdResponseDTO.getMonthlyOotdListDTO result=ootdQueryService.getMonthlyOotds(year,month,member.getId());
         return ResponseEntity.ok(ApiResponse.onSuccess(result));
     }
     @GetMapping("/month/{ootdId}")
@@ -79,11 +81,13 @@ public class OotdController {
     @GetMapping("/similar-ootd")
     @Operation(summary = "비슷한 기온 ootd 조회 API", description = "비슷한 기온 ootd 조회하는 API입니다.")
     public ResponseEntity<ApiResponse<OotdResponseDTO.getSimilarOotdListDTO>> getSimilarOotd(@RequestParam int minTemp,
-                                                                                        @RequestParam int maxTemp,
-                                                                                        @RequestParam boolean rain, Member member){
-        OotdResponseDTO.getSimilarOotdListDTO result=ootdQueryService.getRandomSimilarOotds(minTemp, maxTemp, rain);
+                                                                                             @RequestParam int maxTemp,
+                                                                                             @RequestParam boolean rain,
+                                                                                             @CurrentUser Member member){
+        OotdResponseDTO.getSimilarOotdListDTO result=ootdQueryService.getRandomSimilarOotds(minTemp, maxTemp, rain, member.getId());
         return ResponseEntity.ok(ApiResponse.onSuccess(result));
     }
+
     @GetMapping("/similar-ootd/{ootdId}")
     @Operation(summary = "비슷한 기온 ootd 상세 조회 API", description = "비슷한 기온 ootd 상세 조회하는 API입니다.")
     public ResponseEntity<ApiResponse<OotdResponseDTO.getOotdDTO>> getSimilarOotdDetail(@PathVariable Long ootdId){

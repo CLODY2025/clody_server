@@ -7,6 +7,8 @@ import com.clody.domain.hashtag.exception.HashtagErrorCode;
 import com.clody.domain.hashtag.exception.HashtagException;
 import com.clody.domain.hashtag.service.query.HashtagQueryService;
 import com.clody.domain.member.entity.Member;
+import com.clody.domain.member.exception.MemberErrorCode;
+import com.clody.domain.member.exception.MemberException;
 import com.clody.domain.member.repository.MemberRepository;
 import com.clody.domain.ootd.dto.OotdResponseDTO;
 import com.clody.domain.ootd.entity.Ootd;
@@ -114,13 +116,13 @@ public class OotdQueryServiceImpl implements OotdQueryService {
 
     /* 월별 ootd list 조회(개인용, 팔로워용) */
     @Override
-    public OotdResponseDTO.getMonthlyOotdListDTO getMonthlyOotds(int year, int month) {
+    public OotdResponseDTO.getMonthlyOotdListDTO getMonthlyOotds(int year, int month,long memberId) {
         LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0);
         LocalDateTime endOfMonth = startOfMonth
                 .withDayOfMonth(startOfMonth.toLocalDate().lengthOfMonth())
                 .withHour(23).withMinute(59).withSecond(59).withNano(999_000_000);
 
-        Member member = memberRepository.findById(1L).orElseThrow(() -> new OotdException(OotdErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new OotdException(OotdErrorCode.MEMBER_NOT_FOUND));
 
         List<Ootd> ootdList = ootdRepository.findByMemberIdAndCreatedAtBetween(member.getId(), startOfMonth, endOfMonth);
         List<OotdResponseDTO.getMonthlyOotdDTO> items = ootdList.stream()
@@ -137,11 +139,11 @@ public class OotdQueryServiceImpl implements OotdQueryService {
     /* 비슷한 ootd 조회 */
     @Override
     public OotdResponseDTO.getSimilarOotdListDTO getRandomSimilarOotds(
-            int minTemp, int maxTemp, boolean rain
+            int minTemp, int maxTemp, boolean rain, long memberId
     ) {
-        //멤버 하드코딩
+        Member member =memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
         List<OotdResponseDTO.getSimilarOotdDTO> items = ootdRepository
-                .findRandomSimilarByMemberWithImageAndTags(1L, minTemp, maxTemp, rain)
+                .findRandomSimilarByMemberWithImageAndTags(member.getId(), minTemp, maxTemp, rain)
                 .stream()
                 .map(row -> {
                     Long id = ((Number) row[0]).longValue();
@@ -199,9 +201,4 @@ public class OotdQueryServiceImpl implements OotdQueryService {
                 .image(presingedUrl)
                 .build();
     }
-
-
-
-
-
 }
